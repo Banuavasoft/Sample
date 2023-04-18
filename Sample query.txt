@@ -1,0 +1,24 @@
+--Leads --
+--Bottom 5 market--
+Select  top 5 region_number as Market,cast(count(INQUIRY_DATE) as decimal(10,2))/count(distinct dim_school.school_fms_id) reg 
+from 
+(
+SELECT distinct [SCHOOL_NUMBER]
+	,[LEAD_ID]
+      ,[SCHOOL_SK]
+      ,[SCHOOL_FMS_ID]
+      ,Cast ([INQUIRY_DATE] as Date) as INQUIRY_DATE
+      ,Cast ([LAST_CONTACT_DATE] as Date) as LAST_CONTACT_DATE
+      ,Cast ([FIRST_TOUR_DATE] as Date) as FIRST_TOUR_DATE
+      ,Cast ([REGISTRATION_DATE] as Date) as REGISTRATION_DATE
+     ,Cast ([LAST_INQUIRY_DATE] as Date) as LAST_INQUIRY_DATE
+      from [WORK].[LEAD_VW] where year(inquiry_date) >=2019
+) as lead_vw
+left JOIN [WORK].[DIM_SCHOOL] 
+ON [DIM_SCHOOL].[SCHOOL_sk]=[LEAD_VW].[SCHOOL_sk]
+where INQUIRY_DATE is not null  
+and crm_status in ('Active', 'Construction')
+and INQUIRY_DATE between cast('2022-01-01' as date) and cast('2022-12-31' as date) 
+and is_active_ind=1
+group by region_number
+order by reg asc
